@@ -1,23 +1,50 @@
 class Solution {
 public:
-    int MOD = 1e9 + 7;
+    int MOD = 1e9 + 7, LIM = 5;
+
+    vector<vector<long long>> matrixMultiplication(vector<vector<long long>>& a, vector<vector<long long>>& b)
+    {
+        vector<vector<long long>> ret(LIM, vector<long long>(LIM, 0));
+
+        for (int i = 0; i < LIM; i++)
+            for (int j = 0; j < LIM; j++)
+                for (int k = 0; k < LIM; k++)
+                    ret[i][j] = (ret[i][j] + a[i][k] * b[k][j]) % MOD;
+
+        return ret;
+    }
 
     int countVowelPermutation(int n)
     {
-        long long dp[2][5];
+        vector<vector<long long>> dp(LIM, vector<long long>(LIM, 0));
+        vector<vector<long long>> mat = {
+            {0, 1, 0, 0, 0},
+            {1, 0, 1, 0, 0},
+            {1, 1, 0, 1, 1},
+            {0, 0, 1, 0, 1},
+            {1, 0, 0, 0, 0}
+        };
 
-        dp[0][0] = dp[0][1] = dp[0][2] = dp[0][3] = dp[0][4] = 1;
+        for (int i = 0; i < LIM; i++)
+            dp[i][i] = 1;
+        
+        n--;
 
-        for (int i = 1; i < n; ++i)
+        while (n > 0)
         {
-            dp[i % 2][0] = (dp[(i + 1) % 2][1]) % MOD;
-            dp[i % 2][1] = (dp[(i + 1) % 2][0] + dp[(i + 1) % 2][2]) % MOD;
-            dp[i % 2][2] = (dp[(i + 1) % 2][0] + dp[(i + 1) % 2][1] + dp[(i + 1) % 2][3] + dp[(i + 1) % 2][4]) % MOD;
-            dp[i % 2][3] = (dp[(i + 1) % 2][2] + dp[(i + 1) % 2][4]) % MOD;
-            dp[i % 2][4] = (dp[(i + 1) % 2][0]) % MOD;
+            if (n % 2 == 1)
+                dp = matrixMultiplication(mat, dp);
+
+            mat = matrixMultiplication(mat, mat);
+
+            n /= 2;
         }
 
-        int ans = (dp[(n + 1) % 2][0] + dp[(n + 1) % 2][1] + dp[(n + 1) % 2][2] + dp[(n + 1) % 2][3] + dp[(n + 1) % 2][4]) % MOD;
+        int ans = 0;
+
+        for (int i = 0; i < LIM; i++)
+            for (int j = 0; j < LIM; j++)
+                ans = (ans + dp[i][j]) % MOD;
 
         return ans;
     }
